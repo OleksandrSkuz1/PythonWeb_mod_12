@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db import get_db
 
 
-router = APIRouter(prefix='contacts', tags=['contacts'])
+router = APIRouter(prefix="/contacts", tags=["contacts"])
 
 @router.get("/")
 async def get_todos():
