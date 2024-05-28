@@ -1,16 +1,17 @@
-from src.database.db import engine, SessionLocal, Base
-from src.schemas.contacts import ContactCreate
+import asyncio
+from src.database.db import sessionmanager
+from src.entity.models import Base
+from src.schemas.contact import ContactSchema
 from faker import Faker
-from src.entity.modelsss import Contact
+from src.entity.models import Contact
 
 fake = Faker()
 
-def create_fake_contacts(n=100):
-    db = SessionLocal()
-    try:
-        # Створення таблиць
-        Base.metadata.create_all(bind=engine)
+async def create_fake_contacts(n=100):
+    async with sessionmanager.async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
+    async with sessionmanager.async_session() as session:
         emails_used = set()  # Набір унікальних електронних адрес
 
         for _ in range(n):
@@ -19,21 +20,18 @@ def create_fake_contacts(n=100):
                 email = fake.unique.email()  # Якщо адрес вже використовується, генеруємо новий
             emails_used.add(email)  # Додаємо адрес до набору
 
-            contact_data = ContactCreate(
+            contact_data = ContactSchema(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 email=email,
                 phone=fake.phone_number(),
                 birthday=fake.date_of_birth(minimum_age=18, maximum_age=60),
-                additional_data=fake.sentence()
+                additional_data=fake.text(max_nb_chars=50)  # Генеруємо рядок до 50 символів
             )
             db_contact = Contact(**contact_data.dict())
-            db.add(db_contact)
-        db.commit()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        db.close()
+            session.add(db_contact)
+        await session.commit()
 
 if __name__ == "__main__":
-    create_fake_contacts()
+    asyncio.run(create_fake_contacts())
+
