@@ -1,21 +1,31 @@
-from pydantic import BaseModel, EmailStr
 from datetime import date
+from typing import Optional
 
-class ContactBase(BaseModel):
+from pydantic import BaseModel, EmailStr, Field
+
+
+class ContactSchema(BaseModel):
+    first_name: str = Field(min_length=1, max_length=25)
+    last_name: str = Field(min_length=1, max_length=25)
+    email: str = Field(min_length=1, max_length=50)
+    phone: str = Field(min_length=1, max_length=50)
+    birthday: date
+    additional_data: str = Field(min_length=1, max_length=50)
+    completed: Optional[bool] = False
+
+
+class ContactUpdateSchema(ContactSchema):
+    completed: bool
+
+
+class ContactResponse(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
     phone: str
     birthday: date
     additional_data: str = None
-
-class ContactCreate(ContactBase):
-    pass
-
-class ContactResponse(ContactBase):
-    id: int
+    completed: bool
 
     class Config:
         from_attributes = True
-
-
