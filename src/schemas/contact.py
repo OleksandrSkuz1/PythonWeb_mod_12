@@ -19,6 +19,7 @@ class ContactUpdateSchema(ContactSchema):
 
 
 class ContactResponse(BaseModel):
+    id: int = 1
     first_name: str
     last_name: str
     email: EmailStr
