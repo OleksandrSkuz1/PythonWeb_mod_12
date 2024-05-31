@@ -13,7 +13,7 @@ from src.repository import users as repository_users
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "3faa2a47cf5e777a897c966577afd80d88d259b56bc404ad1f3248564e0f8078"  # CONTACT прибрать в ENV файл
+    SECRET_KEY = "$2b$12$GC2SaMaRPirwitvf5Oi6k.cywDadPWL8sOJxK.e1clYwQnBfW/xhe"  # CONTACT прибрать в ENV файл
     ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
