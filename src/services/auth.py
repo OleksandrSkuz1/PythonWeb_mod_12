@@ -10,7 +10,7 @@ from src.repository import users as repository_users
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "your_secret_key"  # Replace with your secret key
+    SECRET_KEY = "9767c898328b8db36364cf1456b845d7f23442a0cc97a7c2d9e8c38d21135fb7"  # Replace with your secret key
     ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
@@ -39,6 +39,16 @@ class Auth:
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_jwt
+
+    async def decode_refresh_token(self, refresh_token: str):
+        try:
+            payload = jwt.decode(refresh_token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+            if payload['scope'] == 'refresh_token':
+                email = payload['sub']
+                return email
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid scope for token')
+        except JWTError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
 
     async def get_current_user(self, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
         credentials_exception = HTTPException(
